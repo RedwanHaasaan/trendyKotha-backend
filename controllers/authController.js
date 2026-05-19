@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const { hashPassword } = require("../utils/hashPass");
 
 exports.registerUserController = async (req, res) => {
   try {
@@ -27,7 +28,7 @@ exports.registerUserController = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password,
+      password: await hashPassword(password),
     });
 
     return res.status(201).json({
