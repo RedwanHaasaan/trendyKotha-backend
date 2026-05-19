@@ -12,4 +12,18 @@ exports.hashPassword = async (password) => {
   return hashedPassword;
 };
 
+exports.comparePassword = async (
+  plainPassword,
+  hashedPassword
+) => {
+
+  const pepperedPassword =
+    plainPassword + process.env.PASSWORD_PEPPER;
+
+  return await bcrypt.compare(
+    pepperedPassword,
+    hashedPassword
+  );
+};
+
 
