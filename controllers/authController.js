@@ -33,7 +33,6 @@ exports.registerUserController = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "User Registered Successfully",
-      user,
     });
   } catch (error) {
     console.error(error);
