@@ -1,31 +1,21 @@
+const { validationResult } = require("express-validator");
 const User = require("../models/User");
 const { hashPassword, comparePassword } = require("../utils/hashPass");
-
-exports.registerUserController = async (req, res) => {
+const errorFormatter = require('../utils/validatorErrorFormater')
+exports.registerUserController = async (req, res, next) => {
+  let errors = validationResult(req).formatWith(errorFormatter)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      errors: errors.mapped(),
+    })
+  }
   try {
-    const { name, email, password } = req.body;
-
-    // Validation
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
-
-    // Check existing user
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "User already exists",
-      });
-    }
+    const { username, email, password } = req.body;
 
     // Create user
     const user = await User.create({
-      name,
+      username,
       email,
       password: await hashPassword(password),
     });

@@ -1,7 +1,7 @@
 const {Schema,model}=require('mongoose');
 
 const userSchema = new Schema({
-    name:{
+    username:{
         type:String,
         required: true,
         trim: true,
@@ -11,13 +11,12 @@ const userSchema = new Schema({
     email:{
         type:String,
         required: true,
-        trim: true,
         unique:true,
     },
     password:{
         type:String,
         required: true,
-        minlength:6,
+        minlength:8,
     },
     profile:{
         type:Schema.Types.ObjectId,
