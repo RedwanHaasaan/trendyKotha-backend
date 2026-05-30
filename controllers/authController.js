@@ -64,6 +64,7 @@ exports.loginUserController = async (req, res) => {
     }
     const user = existingUser.toObject();
     delete user.password;
+    res.setHeader('Set-Cookie','isLoggedIn=true')
     return res.status(200).json({
       success: true,
       message: "Login successful",

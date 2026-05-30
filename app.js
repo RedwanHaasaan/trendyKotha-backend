@@ -18,7 +18,10 @@ const PORT = parseInt(process.env.PORT, 10) || 5000;
 const middleware=[
     morgan('dev'),
     express.json(),
-    cors(),
+    cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
 ]
 
 app.use(middleware);
