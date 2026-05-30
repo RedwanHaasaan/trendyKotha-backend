@@ -5,6 +5,4 @@ const signUpValidator = require('../validators/authValidator');
 
 router.post('/register',signUpValidator,registerUserController);
 router.post('/login',loginUserController)
-
-
 module.exports=router;

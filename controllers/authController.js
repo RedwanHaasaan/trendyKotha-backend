@@ -1,14 +1,14 @@
 const { validationResult } = require("express-validator");
 const User = require("../models/User");
 const { hashPassword, comparePassword } = require("../utils/hashPass");
-const errorFormatter = require('../utils/validatorErrorFormater')
+const errorFormatter = require("../utils/validatorErrorFormater");
 exports.registerUserController = async (req, res, next) => {
-  let errors = validationResult(req).formatWith(errorFormatter)
+  let errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
       errors: errors.mapped(),
-    })
+    });
   }
   try {
     const { username, email, password } = req.body;
@@ -62,9 +62,15 @@ exports.loginUserController = async (req, res) => {
         message: "Invalid credentials",
       });
     }
-    const user = existingUser.toObject();
-    delete user.password;
-    res.setHeader('Set-Cookie','isLoggedIn=true')
+    req.session.user = {
+      id: existingUser._id,
+      username: existingUser.username,
+      email: existingUser.email,
+    };
+    const user = {
+      id: existingUser._id,
+      username: existingUser.username,
+    };
     return res.status(200).json({
       success: true,
       message: "Login successful",
