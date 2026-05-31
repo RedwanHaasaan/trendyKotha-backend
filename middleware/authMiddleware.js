@@ -27,3 +27,14 @@ exports.isAuthenticated = (req, res, next) => {
 
   next();
 };
+
+exports.isUnAuthenticated = (req, res, next) => {
+  if (req.session.isLoggedIn) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized. User Already Logged In.",
+    });
+  }
+
+  next();
+};
