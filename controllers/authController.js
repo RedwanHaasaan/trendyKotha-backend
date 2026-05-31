@@ -62,15 +62,13 @@ exports.loginUserController = async (req, res) => {
         message: "Invalid credentials",
       });
     }
-    req.session.user = {
-      id: existingUser._id,
-      username: existingUser.username,
-      email: existingUser.email,
-    };
     const user = {
       id: existingUser._id,
       username: existingUser.username,
     };
+    req.session.isLoggedIn =true;
+    req.session.userId = existingUser._id.toString();
+    await req.session.save();
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -83,4 +81,35 @@ exports.loginUserController = async (req, res) => {
       message: "Server Error",
     });
   }
+};
+
+exports.getUserProfileController = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+};
+
+exports.logoutUser = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+      });
+    }
+
+    res.clearCookie("connect.sid");
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully!",
+    });
+  });
 };

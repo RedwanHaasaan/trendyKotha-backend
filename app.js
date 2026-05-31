@@ -5,14 +5,22 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const morgan = require("morgan");
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
 dotenv.config();
 
 //Import Routes
 const authRoutes = require("./routes/authRoutes");
-const session = require("express-session");
-
+//import middleware
+const {bindUserWithRequest}=require('./middleware/authMiddleware')
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 5000;
+
+//configure store
+const store = new MongoDBStore({
+  uri: process.env.MONGO_URI,
+  collection: "sessions",
+});
 
 // Middleware
 const middleware = [
@@ -26,11 +34,13 @@ const middleware = [
     secret: process.env.SESSION_SECRET || "my-secret-key",
     resave: false,
     saveUninitialized: false,
+    store: store,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000 * 7, // 1 day
       httpOnly: true,
     },
   }),
+  bindUserWithRequest(),
 ];
 
 app.use(middleware);
