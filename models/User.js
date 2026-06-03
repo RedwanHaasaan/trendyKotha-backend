@@ -18,6 +18,10 @@ const userSchema = new Schema({
         required: true,
         minlength:8,
     },
+    isProfileCompleted:{
+        type:Boolean,
+        default:false,
+    },
     profile:{
         type:Schema.Types.ObjectId,
         ref:'Profile',

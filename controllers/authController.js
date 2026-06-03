@@ -65,9 +65,11 @@ exports.loginUserController = async (req, res) => {
     const user = {
       id: existingUser._id,
       username: existingUser.username,
+      isProfileCompleted: existingUser.isProfileCompleted,
     };
     req.session.isLoggedIn =true;
     req.session.userId = existingUser._id.toString();
+    req.session.ipAddress = req.ip;
     await req.session.save();
     return res.status(200).json({
       success: true,

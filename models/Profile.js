@@ -26,7 +26,6 @@ const userSchema=new Schema({
     links:{
         website:String,
         twitter:String,
-        facebook:String,
         linkedin:String,
         github:String,
     },
