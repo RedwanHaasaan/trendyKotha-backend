@@ -1,11 +1,10 @@
 const router = require('express').Router();
 
-const {registerUserController,loginUserController,getUserProfileController,logoutUser}=require('../controllers/authController');
+const {registerUserController,loginUserController,logoutUser}=require('../controllers/authController');
 const signUpValidator = require('../validators/authValidator');
-const {isAuthenticated,isUnAuthenticated}=require('../middleware/authMiddleware')
+const {isGuest}=require('../middleware/authMiddleware')
 
-router.post('/register',isUnAuthenticated,signUpValidator,registerUserController);
-router.post('/login',isUnAuthenticated,loginUserController)
-router.get('/user',isAuthenticated,getUserProfileController)
+router.post('/register',isGuest,signUpValidator,registerUserController);
+router.post('/login',isGuest,loginUserController)
 router.post("/logout", logoutUser);
 module.exports=router;

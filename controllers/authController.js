@@ -2,6 +2,8 @@ const { validationResult } = require("express-validator");
 const User = require("../models/User");
 const { hashPassword, comparePassword } = require("../utils/hashPass");
 const errorFormatter = require("../utils/validatorErrorFormater");
+const generateToken = require("../utils/generateToken");
+
 exports.registerUserController = async (req, res, next) => {
   let errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
@@ -62,15 +64,20 @@ exports.loginUserController = async (req, res) => {
         message: "Invalid credentials",
       });
     }
+    const token = generateToken(existingUser._id);
+
     const user = {
       id: existingUser._id,
       username: existingUser.username,
       isProfileCompleted: existingUser.isProfileCompleted,
     };
-    req.session.isLoggedIn =true;
-    req.session.userId = existingUser._id.toString();
-    req.session.ipAddress = req.ip;
-    await req.session.save();
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -85,33 +92,11 @@ exports.loginUserController = async (req, res) => {
   }
 };
 
-exports.getUserProfileController = async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-    });
-  }
+exports.logoutUser = (req, res) => {
+  res.clearCookie("token");
 
   res.status(200).json({
     success: true,
-    user: req.user,
-  });
-};
-
-exports.logoutUser = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-      });
-    }
-
-    res.clearCookie("connect.sid");
-
-    return res.status(200).json({
-      success: true,
-      message: "Logged out successfully!",
-    });
+    message: "Logout successful",
   });
 };

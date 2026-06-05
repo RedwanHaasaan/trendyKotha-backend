@@ -1,40 +1,54 @@
-const User = require('../models/User')
-const mongoose = require("mongoose")
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 
-exports.bindUserWithRequest=()=>{
-    return async (req,res,next)=>{
-        if(!req.session.isLoggedIn){
-            return next()
-        }
-        try{
-            let user = await User.findById(req.session.userId).select("-password");
-            req.user=user
-            next()
-        }catch(error){
-            console.log(error)
-            next(error)
-        }
+exports.authenticate = async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
     }
-}
 
-exports.isAuthenticated = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    req.user = user;
+
+    next();
+  } catch (error) {
     return res.status(401).json({
       success: false,
-      message: "Unauthorized. Please login first.",
+      message: "Invalid token",
     });
   }
-
-  next();
 };
 
-exports.isUnAuthenticated = (req, res, next) => {
-  if (req.session.isLoggedIn) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized. User Already Logged In.",
-    });
-  }
+exports.isGuest = (req, res, next) => {
+  try {
+    const token = req.cookies.token;
 
-  next();
+    if (!token) {
+      return next();
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET);
+
+    return res.status(400).json({
+      success: false,
+      message: "Already logged in",
+    });
+  } catch {
+    next();
+  }
 };

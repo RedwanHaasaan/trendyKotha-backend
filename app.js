@@ -5,22 +5,16 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const morgan = require("morgan");
-const session = require("express-session");
-const MongoDBStore = require("connect-mongodb-session")(session);
+const cookieParser = require("cookie-parser");
 dotenv.config();
 
 //Import Routes
 const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 //import middleware
-const {bindUserWithRequest}=require('./middleware/authMiddleware')
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 5000;
 
-//configure store
-const store = new MongoDBStore({
-  uri: process.env.MONGO_URI,
-  collection: "sessions",
-});
 
 // Middleware
 const middleware = [
@@ -30,22 +24,13 @@ const middleware = [
     origin: "http://localhost:3000",
     credentials: true,
   }),
-  session({
-    secret: process.env.SESSION_SECRET || "my-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-    cookie: {
-      maxAge: 24 * 60 * 60 * 1000 * 7, // 1 day
-      httpOnly: true,
-    },
-  }),
-  bindUserWithRequest(),
+  cookieParser(),
 ];
 
 app.use(middleware);
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/profile", profileRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to TrendyKotha API");
