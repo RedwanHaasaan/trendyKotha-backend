@@ -64,7 +64,7 @@ exports.loginUserController = async (req, res) => {
         message: "Invalid credentials",
       });
     }
-    const token = generateToken(existingUser._id);
+    const token = generateToken(existingUser._id, existingUser.isProfileCompleted);
 
     const user = {
       id: existingUser._id,

@@ -13,6 +13,7 @@
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -20,6 +21,8 @@
     "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "streamifier": "^0.1.1"
   }
 }
