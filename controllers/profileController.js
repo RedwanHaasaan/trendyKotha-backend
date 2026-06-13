@@ -94,3 +94,42 @@ exports.getProfileController = async (req, res) => {
     });
   }
 };
+
+exports.updateProfileController = async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      user: req.user._id,
+    });
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found",
+      });
+    }
+    let imageUrl = profile.profilepicture;
+    if (req.file) {
+      const image = await uploadImage(req.file.buffer);
+      imageUrl = image.secure_url;
+    }
+    profile.fullname = req.body.fullName || profile.fullname;
+    profile.bio = req.body.bio || profile.bio;
+    profile.profilepicture = imageUrl;
+    profile.links = {
+      website: req.body.website !== undefined ? req.body.website : profile.links.website,
+      twitter: req.body.twitter !== undefined ? req.body.twitter : profile.links.twitter,
+      linkedin: req.body.linkedin !== undefined ? req.body.linkedin : profile.links.linkedin,
+      github: req.body.github !== undefined ? req.body.github : profile.links.github,
+    };
+    await profile.save();
+    res.status(200).json({
+      success: true,
+      profile,
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
