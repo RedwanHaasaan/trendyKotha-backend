@@ -142,3 +142,30 @@ exports.changePasswordController = async (req, res) => {
     });
   }
 };
+
+exports.deleteAccountController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Delete profile associated with the user
+    const Profile = require("../models/Profile");
+    await Profile.findOneAndDelete({ user: userId });
+
+    // Delete user
+    await User.findByIdAndDelete(userId);
+
+    // Clear authentication cookie
+    res.clearCookie("token");
+
+    return res.status(200).json({
+      success: true,
+      message: "Account and associated data deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
